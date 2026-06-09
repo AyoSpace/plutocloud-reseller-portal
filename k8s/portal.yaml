@@ -1,0 +1,256 @@
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: plutocloud-portal
+
+---
+# Secret - Backend env vars
+apiVersion: v1
+kind: Secret
+metadata:
+  name: portal-backend-secret
+  namespace: plutocloud-portal
+type: Opaque
+stringData:
+  NODE_ENV: "production"
+  PORT: "3001"
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "plutocloud"
+  DB_USER: "plutocloud"
+  DB_PASSWORD: "PlutoCloud@DB2026!"
+  JWT_SECRET: "PlutoCloud_JWT_Secret_2026_Enterprise_K8s_Portal_Secure_Key_XyZ"
+  JWT_EXPIRES_IN: "24h"
+  PAYSTACK_PUBLIC_KEY: "PAYSTACK_PUBLIC_KEY_HERE"
+  PAYSTACK_SECRET_KEY: "PAYSTACK_SECRET_KEY_HERE"
+  SMTP_HOST: "smtp.zoho.com"
+  SMTP_PORT: "465"
+  SMTP_SECURE: "true"
+  SMTP_USER: "eniola@plutocloudcomputing.ng"
+  SMTP_PASS: "SMTP_PASSWORD_HERE"
+  SMTP_FROM: "Pluto Cloud Computing <eniola@plutocloudcomputing.ng>"
+  FINANCE_EMAIL: "tobe@plutocloudcomputing.ng"
+  SUPPORT_EMAIL: "info@plutocloudcomputing.ng"
+  ADMIN_EMAIL: "eniola@plutocloudcomputing.ng"
+  APP_URL: "https://portal.plutocloudcomputing.ng"
+  FRONTEND_URL: "https://portal.plutocloudcomputing.ng"
+  PRICE_VCPU: "2450000"
+  PRICE_RAM_GB: "262500"
+  PRICE_STORAGE_GB: "10800"
+  PRICE_WINDOWS_OS: "3000000"
+  RESELLER_DISCOUNT: "0.20"
+  VAT_RATE: "0.075"
+  PAYSTACK_FEE_PERCENT: "0.015"
+  PAYSTACK_FEE_FLAT: "10000"
+  PAYSTACK_FEE_CAP: "200000"
+  MIN_WITHDRAWAL: "1000000"
+
+---
+# PostgreSQL PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: plutocloud-portal
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-general
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# PostgreSQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: plutocloud-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        env:
+        - name: POSTGRES_DB
+          value: plutocloud
+        - name: POSTGRES_USER
+          value: plutocloud
+        - name: POSTGRES_PASSWORD
+          value: PlutoCloud@DB2026!
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: plutocloud-portal
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+
+---
+# Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portal-backend
+  namespace: plutocloud-portal
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: portal-backend
+  template:
+    metadata:
+      labels:
+        app: portal-backend
+    spec:
+      containers:
+      - name: backend
+        image: plutocloud/portal-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3001
+        envFrom:
+        - secretRef:
+            name: portal-backend-secret
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# Backend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: plutocloud-portal
+spec:
+  selector:
+    app: portal-backend
+  ports:
+  - port: 3001
+    targetPort: 3001
+
+---
+# Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portal-frontend
+  namespace: plutocloud-portal
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: portal-frontend
+  template:
+    metadata:
+      labels:
+        app: portal-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: plutocloud/portal-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+
+---
+# Frontend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: plutocloud-portal
+spec:
+  selector:
+    app: portal-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: portal-ingress
+  namespace: plutocloud-portal
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - portal.plutocloudcomputing.ng
+    secretName: portal-tls
+  rules:
+  - host: portal.plutocloudcomputing.ng
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 3001
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
