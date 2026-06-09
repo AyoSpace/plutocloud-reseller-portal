@@ -253,3 +253,49 @@ router.get('/me', authenticate, async (req, res) => {
 });
 
 module.exports = router;
+
+// Change password
+router.post('/change-password', authenticate, async (req, res) => {
+  try {
+    const { current, password } = req.body;
+    const { rows } = await pool.query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);
+    const valid = await require('bcryptjs').compare(current, rows[0].password_hash);
+    if (!valid) return res.status(400).json({ error: 'Current password is incorrect' });
+    const hash = await require('bcryptjs').hash(password, 12);
+    await pool.query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2', [hash, req.user.id]);
+    res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to change password' });
+  }
+});
+
+// Update profile
+router.patch('/profile', authenticate, async (req, res) => {
+  try {
+    const { first_name, last_name, phone } = req.body;
+    const { rows } = await pool.query(
+      `UPDATE users SET first_name = $1, last_name = $2, phone = $3, updated_at = NOW()
+       WHERE id = $4 RETURNING id, email, first_name, last_name, phone, role`,
+      [first_name, last_name, phone, req.user.id]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+// Disable 2FA
+router.post('/disable-2fa', authenticate, async (req, res) => {
+  try {
+    const { code } = req.body;
+    const { rows } = await pool.query('SELECT totp_secret FROM users WHERE id = $1', [req.user.id]);
+    const verified = require('speakeasy').totp.verify({
+      secret: rows[0].totp_secret, encoding: 'base32', token: code, window: 2
+    });
+    if (!verified) return res.status(400).json({ error: 'Invalid code' });
+    await pool.query('UPDATE users SET totp_enabled = false, totp_secret = NULL WHERE id = $1', [req.user.id]);
+    res.json({ message: '2FA disabled successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to disable 2FA' });
+  }
+});
