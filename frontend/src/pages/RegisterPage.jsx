@@ -21,8 +21,8 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await API.post('/auth/register', form);
-      toast.success('Account created! Please check your email to verify.');
-      navigate('/login');
+      toast.success('Account created! A verification email has been sent to ' + form.email + '. Please check your inbox.', { duration: 6000 });
+      setTimeout(() => navigate('/login'), 4000);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Registration failed');
     } finally {

@@ -74,7 +74,7 @@ export default function DashboardHome() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-medium text-sm">{o.hostname}</p>
-                  <p className="text-slate-400 text-xs">{o.vcpu} vCPU • {o.ram_gb}GB RAM • {o.storage_gb}GB SSD</p>
+                  <p className="text-slate-400 text-xs">{o.vcpu} vCPU • {o.ram_gb}GB RAM • {o.storage_gb}GB HDD</p>
                 </div>
                 <div className="text-right">
                   <p className="text-white text-sm font-medium">₦{(o.total_kobo / 100).toLocaleString()}</p>

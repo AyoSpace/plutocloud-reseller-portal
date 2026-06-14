@@ -29,7 +29,7 @@ export function OrderDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-slate-800 border border-slate-700 rounded-xl p-5">
           <h3 className="text-white font-semibold mb-4">VM Specifications</h3>
-          {[['vCPU', `${order.vcpu} Cores`],['RAM', `${order.ram_gb} GB`],['Storage', `${order.storage_gb} GB SSD`],['OS', order.os?.replace(/_/g,' ')],['Plan', order.plan_name]].map(([k,v]) => (
+          {[['vCPU', `${order.vcpu} Cores`],['RAM', `${order.ram_gb} GB`],['Storage', `${order.storage_gb} GB HDD`],['OS', order.os?.replace(/_/g,' ')],['Plan', order.plan_name]].map(([k,v]) => (
             <div key={k} className="flex justify-between py-2 border-b border-slate-700 last:border-0 text-sm"><span className="text-slate-400">{k}</span><span className="text-white">{v}</span></div>
           ))}
         </div>

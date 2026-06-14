@@ -36,7 +36,7 @@ const baseTemplate = (content) => `
   <div class="body">${content}</div>
   <div class="footer">
     <p>© 2026 Pluto Cloud Computing. All rights reserved.</p>
-    <p>portal.plutocloudcomputing.ng | info@plutocloudcomputing.ng</p>
+    <p>portal.plutocloudcomputing.ng | noc@plutocloudcomputing.ng</p>
   </div>
 </div>
 </body>
@@ -59,7 +59,7 @@ async function sendVerificationEmail(user, token) {
   const html = baseTemplate(`
     <h2>Welcome to Pluto Cloud Computing!</h2>
     <p>Hi ${user.first_name},</p>
-    <p>Thank you for registering. Please verify your email address to activate your account.</p>
+    <p>Thank you for registering with Pluto Cloud Computing. A verification email has been sent to your email address. Please check your inbox (and spam folder) and click the verification link to activate your account.</p>
     <a href="${url}" class="btn">Verify Email Address</a>
     <p>This link expires in 24 hours. If you did not create an account, please ignore this email.</p>
   `);
@@ -98,7 +98,7 @@ async function sendVMProvisionedEmail(user, order, vmDetails) {
     </div>
     <p><strong>⚠️ Important:</strong> Please change your password immediately after first login.</p>
     <a href="${process.env.FRONTEND_URL}/dashboard" class="btn">Go to Dashboard</a>
-    <p>Need help? Contact us at <a href="mailto:info@plutocloudcomputing.ng">info@plutocloudcomputing.ng</a></p>
+    <p>Need help? Contact us at <a href="mailto:noc@plutocloudcomputing.ng">noc@plutocloudcomputing.ng</a></p>
   `);
   return sendEmail(user.email, 'Your VM is Ready — Pluto Cloud Computing', html);
 }

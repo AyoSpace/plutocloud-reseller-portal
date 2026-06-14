@@ -7,9 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const OS_OPTIONS = [
   { value: 'ubuntu_22', label: 'Ubuntu 22.04 LTS', free: true },
-  { value: 'ubuntu_20', label: 'Ubuntu 20.04 LTS', free: true },
   { value: 'centos_8', label: 'CentOS 8', free: true },
-  { value: 'windows_server_2022', label: 'Windows Server 2022', free: false },
   { value: 'windows_server_2019', label: 'Windows Server 2019', free: false },
 ];
 
@@ -121,7 +119,7 @@ export default function NewOrderPage() {
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-slate-300 text-sm font-medium flex items-center gap-2"><HardDrive className="w-4 h-4 text-green-400" />Storage (SSD)</label>
+                    <label className="text-slate-300 text-sm font-medium flex items-center gap-2"><HardDrive className="w-4 h-4 text-green-400" />Storage (HDD)</label>
                     <span className="text-green-400 font-bold">{config.storage_gb} GB</span>
                   </div>
                   <input type="range" min={plan.min_storage_gb} max={plan.max_storage_gb} step={10} value={config.storage_gb}
@@ -169,7 +167,7 @@ export default function NewOrderPage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-slate-400"><span>{config.vcpu} vCPU × ₦24,500</span><span>₦{(config.vcpu * 24500).toLocaleString()}</span></div>
                   <div className="flex justify-between text-slate-400"><span>{config.ram_gb}GB RAM × ₦2,625</span><span>₦{(config.ram_gb * 2625).toLocaleString()}</span></div>
-                  <div className="flex justify-between text-slate-400"><span>{config.storage_gb}GB SSD × ₦108</span><span>₦{(config.storage_gb * 108).toLocaleString()}</span></div>
+                  <div className="flex justify-between text-slate-400"><span>{config.storage_gb}GB HDD × ₦108</span><span>₦{(config.storage_gb * 108).toLocaleString()}</span></div>
                   {config.os.startsWith('windows') && <div className="flex justify-between text-slate-400"><span>Windows OS</span><span>₦30,000</span></div>}
                   {pricing.discountNgn > 0 && <div className="flex justify-between text-green-400"><span>Reseller Discount (20%)</span><span>-₦{pricing.discountNgn.toLocaleString()}</span></div>}
                   <div className="flex justify-between text-slate-400"><span>VAT (7.5%)</span><span>₦{pricing.vatNgn.toLocaleString()}</span></div>

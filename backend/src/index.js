@@ -11,6 +11,7 @@ const resellerRoutes = require('./routes/reseller');
 const { pool } = require('./config/database');
 
 const app = express();
+app.set("trust proxy", 1);
 
 // Security middleware
 app.use(helmet());
