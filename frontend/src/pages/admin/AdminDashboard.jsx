@@ -102,6 +102,7 @@ export function AdminOrders() {
 export function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState('clients');
 
   useEffect(() => {
     API.get('/admin/users').then(r => setUsers(r.data)).finally(() => setLoading(false));
@@ -117,29 +118,71 @@ export function AdminUsers() {
 
   const roleColor = { super_admin: 'bg-purple-600', finance_admin: 'bg-yellow-600', reseller: 'bg-green-600', client: 'bg-blue-600' };
 
+  const companyUsers = users.filter(u => ['super_admin','finance_admin'].includes(u.role));
+  const clients = users.filter(u => u.role === 'client');
+  const resellers = users.filter(u => u.role === 'reseller');
+
+  const tabs = [
+    { key: 'clients', label: `Clients (${clients.length})` },
+    { key: 'resellers', label: `Resellers (${resellers.length})` },
+    { key: 'company', label: `Company Users (${companyUsers.length})` },
+  ];
+
+  const activeUsers = tab === 'clients' ? clients : tab === 'resellers' ? resellers : companyUsers;
+
   return (
     <div>
-      <div className="mb-6"><h1 className="text-2xl font-bold text-white">Users</h1><p className="text-slate-400 mt-1">Manage clients and resellers</p></div>
+      <div className="mb-6"><h1 className="text-2xl font-bold text-white">Users</h1><p className="text-slate-400 mt-1">Manage clients, resellers and company users</p></div>
+      <div className="flex gap-2 mb-4">
+        {tabs.map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t.key ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
       <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
         {loading ? <div className="p-8 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div></div> : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead><tr className="border-b border-slate-700">{['Name','Email','Role','Verified','Joined','Actions'].map(h => <th key={h} className="text-left text-slate-400 text-xs font-medium px-6 py-3">{h}</th>)}</tr></thead>
+              <thead>
+                <tr className="border-b border-slate-700">
+                  {tab === 'resellers'
+                    ? ['Name','Email','Reseller Code','VMs','Clients','Joined','Actions'].map(h => <th key={h} className="text-left text-slate-400 text-xs font-medium px-6 py-3">{h}</th>)
+                    : ['Name','Email','Role','Verified','Joined','Actions'].map(h => <th key={h} className="text-left text-slate-400 text-xs font-medium px-6 py-3">{h}</th>)
+                  }
+                </tr>
+              </thead>
               <tbody className="divide-y divide-slate-700">
-                {users.map(u => (
+                {activeUsers.map(u => (
                   <tr key={u.id} className="hover:bg-slate-700/30">
                     <td className="px-6 py-4 text-white text-sm font-medium">{u.first_name} {u.last_name}</td>
                     <td className="px-6 py-4 text-slate-400 text-sm">{u.email}</td>
-                    <td className="px-6 py-4"><span className={`text-xs text-white px-2 py-1 rounded-full ${roleColor[u.role]||'bg-slate-600'}`}>{u.role}</span></td>
-                    <td className="px-6 py-4">{u.is_email_verified ? <CheckCircle className="w-4 h-4 text-green-400" /> : <span className="text-slate-500 text-xs">No</span>}</td>
-                    <td className="px-6 py-4 text-slate-400 text-sm">{new Date(u.created_at).toLocaleDateString()}</td>
-                    <td className="px-6 py-4">
-                      {u.role === 'client' && (
-                        <button onClick={() => makeReseller(u.id)} className="text-xs bg-green-700 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg">Make Reseller</button>
-                      )}
-                    </td>
+                    {tab === 'resellers' ? (
+                      <>
+                        <td className="px-6 py-4"><span className="text-xs font-mono bg-slate-700 text-blue-300 px-2 py-1 rounded">{u.reseller_code || 'N/A'}</span></td>
+                        <td className="px-6 py-4 text-white text-sm">{u.vm_count || 0}</td>
+                        <td className="px-6 py-4 text-white text-sm">{u.client_count || 0}</td>
+                        <td className="px-6 py-4 text-slate-400 text-sm">{new Date(u.created_at).toLocaleDateString()}</td>
+                        <td className="px-6 py-4"><span className="text-xs bg-green-700 text-white px-2 py-1 rounded-full">Reseller</span></td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="px-6 py-4"><span className={`text-xs text-white px-2 py-1 rounded-full ${roleColor[u.role]||'bg-slate-600'}`}>{u.role}</span></td>
+                        <td className="px-6 py-4">{u.is_email_verified ? <CheckCircle className="w-4 h-4 text-green-400" /> : <span className="text-slate-500 text-xs">No</span>}</td>
+                        <td className="px-6 py-4 text-slate-400 text-sm">{new Date(u.created_at).toLocaleDateString()}</td>
+                        <td className="px-6 py-4">
+                          {u.role === 'client' && (
+                            <button onClick={() => makeReseller(u.id)} className="text-xs bg-green-700 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg">Make Reseller</button>
+                          )}
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
+                {activeUsers.length === 0 && (
+                  <tr><td colSpan="7" className="px-6 py-8 text-center text-slate-500">No {tab} found</td></tr>
+                )}
               </tbody>
             </table>
           </div>

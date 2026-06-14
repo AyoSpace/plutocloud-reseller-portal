@@ -120,12 +120,12 @@ export default function NewOrderPage() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-slate-300 text-sm font-medium flex items-center gap-2"><HardDrive className="w-4 h-4 text-green-400" />Storage (HDD)</label>
-                    <span className="text-green-400 font-bold">{config.storage_gb} GB</span>
+                    <span className="text-green-400 font-bold">{config.storage_gb >= 1000 ? (config.storage_gb/1000).toFixed(1)+'TB' : config.storage_gb+'GB'}</span>
                   </div>
                   <input type="range" min={plan.min_storage_gb} max={plan.max_storage_gb} step={10} value={config.storage_gb}
-                    onChange={e => setConfig({ ...config, storage_gb: parseInt(e.target.value) })}
+                    onChange={e => setConfig({ ...config, storage_gb: parseInt(e.target.value) })} step={plan.min_storage_gb >= 1000 ? 100 : 10}
                     className="w-full accent-green-500" />
-                  <div className="flex justify-between text-xs text-slate-500 mt-1"><span>{plan.min_storage_gb} GB</span><span>{plan.max_storage_gb} GB</span></div>
+                  <div className="flex justify-between text-xs text-slate-500 mt-1"><span>{plan.min_storage_gb >= 1000 ? (plan.min_storage_gb/1000)+'TB' : plan.min_storage_gb+'GB'}</span><span>{plan.max_storage_gb >= 1000 ? (plan.max_storage_gb/1000)+'TB' : plan.max_storage_gb+'GB'}</span></div>
                 </div>
               </div>
             </div>

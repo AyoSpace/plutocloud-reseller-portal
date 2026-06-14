@@ -41,9 +41,9 @@ CREATE TABLE vm_plans (
 
 -- Insert default plans
 INSERT INTO vm_plans (name, description, min_vcpu, max_vcpu, min_ram_gb, max_ram_gb, min_storage_gb, max_storage_gb) VALUES
-('Basic', 'Entry-level cloud VM for small workloads', 1, 4, 1, 8, 20, 100),
-('Pro', 'Professional VM for medium workloads', 2, 8, 4, 32, 50, 300),
-('Enterprise', 'High-performance VM for demanding workloads', 4, 16, 8, 64, 100, 500);
+('Standard', 'Cloud VM for growing businesses - 500GB to 3TB storage', 2, 32, 4, 128, 500, 3000),
+('Business', 'High-capacity VM for demanding workloads - 1TB to 10TB storage', 8, 64, 16, 256, 1000, 10000),
+('Enterprise', 'Ultra-scale VM for enterprise workloads - 5TB to 100TB storage', 32, 256, 64, 1024, 5000, 100000);
 
 -- VM Orders
 CREATE TABLE vm_orders (
