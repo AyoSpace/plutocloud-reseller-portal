@@ -142,13 +142,13 @@ export function SupportPage() {
         <Mail className="w-16 h-16 text-blue-400 mx-auto mb-4" />
         <h2 className="text-white text-xl font-semibold mb-2">Contact Support</h2>
         <p className="text-slate-400 mb-6">Send us an email and our team will respond within 24 hours.</p>
-        <a href="mailto:info@plutocloudcomputing.ng?subject=Support Request"
+        <a href="mailto:noc@plutocloudcomputing.ng?subject=Support Request"
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors">
           <Mail className="w-5 h-5" />
           Email Support
           <ExternalLink className="w-4 h-4" />
         </a>
-        <p className="text-slate-500 text-sm mt-4">info@plutocloudcomputing.ng</p>
+        <p className="text-slate-500 text-sm mt-4">noc@plutocloudcomputing.ng</p>
       </div>
     </div>
   );

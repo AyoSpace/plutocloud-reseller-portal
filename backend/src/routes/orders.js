@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { pool } = require('../config/database');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 const { calculateVMPrice } = require('../utils/pricing');
-const { sendPaymentConfirmationEmail, sendVMProvisionedEmail, sendFinanceAlert } = require('../services/email');
+const { sendPaymentConfirmationEmail, sendVMProvisionedEmail, sendFinanceAlert, sendNOCProvisioningAlert, sendResellerEarningNotification } = require('../services/email');
 const axios = require('axios');
 
 const router = express.Router();
@@ -178,13 +178,28 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         const { rows: userRows } = await pool.query('SELECT * FROM users WHERE id = $1', [payment.user_id]);
         const { rows: invRows } = await pool.query('SELECT * FROM invoices WHERE order_id = $1', [payment.order_id]);
         if (userRows[0] && invRows[0]) {
+          // 1. Client payment confirmation
           await sendPaymentConfirmationEmail(userRows[0], order, invRows[0]);
-          await sendFinanceAlert(`New Payment — ${reference}`, {
-            'Customer': userRows[0].email,
+          // 2. Finance alert to Tobe + Eniola
+          await sendFinanceAlert(`New Payment — ${order.order_ref}`, {
+            'Customer': `${userRows[0].first_name} ${userRows[0].last_name}`,
+            'Email': userRows[0].email,
             'Amount': `₦${(payment.amount_kobo / 100).toLocaleString()}`,
             'Reference': reference,
             'Order': order.order_ref,
+            'VM Specs': `${order.vcpu} vCPU · ${order.ram_gb}GB RAM · ${order.storage_gb}GB`,
+            'OS': order.os,
           });
+          // 3. NOC provisioning alert to eniola + noc@
+          await sendNOCProvisioningAlert(order, userRows[0]);
+          // 4. Reseller commission notification
+          if (order.reseller_id) {
+            const { rows: resellerRows } = await pool.query('SELECT * FROM users WHERE id = $1', [order.reseller_id]);
+            const earning = Math.round(order.base_price_kobo * 0.20);
+            if (resellerRows[0]) {
+              await sendResellerEarningNotification(resellerRows[0], userRows[0], order, earning);
+            }
+          }
         }
       } catch (err) {
         await client.query('ROLLBACK');
