@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 
 const authRoutes = require('./routes/auth');
+const googleAuthRoutes = require('./routes/auth-google');
 const orderRoutes = require('./routes/orders');
 const resellerRoutes = require('./routes/reseller');
 const { pool } = require('./config/database');
@@ -53,6 +54,7 @@ app.get('/health', async (req, res) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', googleAuthRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reseller', resellerRoutes);
 

@@ -1,3 +1,4 @@
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -47,6 +48,7 @@ function PublicRoute({ children }) {
 
 export default function App() {
   return (
+    <GoogleOAuthProvider clientId="952372491238-ioqvll5kiq9slvpf40jquujpka18c6ps.apps.googleusercontent.com">
     <AuthProvider>
       <BrowserRouter>
         <Toaster position="top-right" toastOptions={{ style: { background: '#1e293b', color: '#f1f5f9', border: '1px solid #334155' } }} />
@@ -89,5 +91,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
