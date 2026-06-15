@@ -33,6 +33,17 @@ export function ResellerDashboard() {
           </div>
         ))}
       </div>
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-2">
+        <p className="text-slate-400 text-sm mb-2">Your Referral Link</p>
+        <div className="flex items-center gap-3">
+          <code className="flex-1 bg-slate-700 text-blue-300 px-3 py-2 rounded text-sm font-mono break-all">
+            {`https://portal.plutocloudcomputing.ng/register?ref=${stats?.resellerCode || ''}`}
+          </code>
+          <button onClick={() => { navigator.clipboard.writeText(`https://portal.plutocloudcomputing.ng/register?ref=${stats?.resellerCode}`); toast.success('Referral link copied!'); }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm whitespace-nowrap">Copy Link</button>
+        </div>
+        <p className="text-slate-500 text-xs mt-2">Share this link — clients who register earn you 20% commission on every order</p>
+      </div>
       <div className="flex gap-3">
         <Link to="/reseller/withdraw" className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2"><ArrowDownCircle className="w-4 h-4" />Request Withdrawal</Link>
         <Link to="/reseller/clients" className="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2"><Users className="w-4 h-4" />View Clients</Link>

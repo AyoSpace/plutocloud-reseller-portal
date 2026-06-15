@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Server, ExternalLink } from 'lucide-react';
+import { Server, ExternalLink, RefreshCw, XCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 import API from '../../utils/api';
 
 const statusColor = { active: 'bg-green-500', provisioning: 'bg-yellow-500', pending_payment: 'bg-slate-500', paid: 'bg-blue-500', suspended: 'bg-red-500', terminated: 'bg-slate-600' };
@@ -13,6 +14,22 @@ export default function OrdersPage() {
   useEffect(() => {
     API.get('/orders').then(r => setOrders(r.data)).finally(() => setLoading(false));
   }, []);
+
+  const retryPayment = async (orderId) => {
+    try {
+      const { data } = await API.post(`/orders/${orderId}/retry-payment`);
+      if (data.authorization_url) window.location.href = data.authorization_url;
+    } catch { toast.error('Failed to retry payment'); }
+  };
+
+  const cancelOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    try {
+      await API.delete(`/orders/${orderId}`);
+      toast.success('Order cancelled');
+      setOrders(orders.filter(o => o.id !== orderId));
+    } catch { toast.error('Failed to cancel order'); }
+  };
 
   return (
     <div>
@@ -28,7 +45,7 @@ export default function OrdersPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead><tr className="border-b border-slate-700">{['VM / Hostname','Specs','OS','Monthly Cost','Status',''].map(h => <th key={h} className="text-left text-slate-400 text-xs font-medium px-6 py-3">{h}</th>)}</tr></thead>
+              <thead><tr className="border-b border-slate-700">{['VM / Hostname','Specs','OS','Monthly Cost','Status','Actions'].map(h => <th key={h} className="text-left text-slate-400 text-xs font-medium px-6 py-3">{h}</th>)}</tr></thead>
               <tbody className="divide-y divide-slate-700">
                 {orders.map(o => (
                   <tr key={o.id} className="hover:bg-slate-700/30">
@@ -37,7 +54,21 @@ export default function OrdersPage() {
                     <td className="px-6 py-4 text-slate-400 text-sm">{o.os?.replace(/_/g,' ')}</td>
                     <td className="px-6 py-4 text-white text-sm font-medium">₦{(o.total_kobo/100).toLocaleString()}</td>
                     <td className="px-6 py-4"><span className={`inline-flex text-xs text-white px-2 py-1 rounded-full ${statusColor[o.status]||'bg-slate-600'}`}>{statusLabel[o.status]||o.status}</span></td>
-                    <td className="px-6 py-4"><Link to={`/dashboard/orders/${o.id}`} className="text-blue-400 hover:text-blue-300 text-sm">Details →</Link></td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <Link to={`/dashboard/orders/${o.id}`} className="text-blue-400 hover:text-blue-300 text-sm">Details</Link>
+                        {o.status === 'pending_payment' && (
+                          <>
+                            <button onClick={() => retryPayment(o.id)} className="inline-flex items-center gap-1 text-xs bg-blue-700 hover:bg-blue-600 text-white px-2 py-1 rounded">
+                              <RefreshCw className="w-3 h-3" />Retry
+                            </button>
+                            <button onClick={() => cancelOrder(o.id)} className="inline-flex items-center gap-1 text-xs bg-red-900 hover:bg-red-800 text-white px-2 py-1 rounded">
+                              <XCircle className="w-3 h-3" />Cancel
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -149,6 +149,7 @@ router.post('/verify-2fa', async (req, res) => {
       secret: user.totp_secret,
       encoding: 'base32',
       token: code,
+      window: 4,
       window: 2,
     });
 
@@ -195,6 +196,7 @@ router.post('/confirm-2fa', authenticate, async (req, res) => {
       secret: rows[0].totp_secret,
       encoding: 'base32',
       token: code,
+      window: 4,
       window: 2,
     });
     if (!verified) return res.status(400).json({ error: 'Invalid code' });

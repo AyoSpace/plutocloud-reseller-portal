@@ -13,6 +13,7 @@ router.get('/dashboard', authenticate, async (req, res) => {
       return res.status(403).json({ error: 'Resellers only' });
     }
 
+    const userInfo = await pool.query('SELECT reseller_code FROM users WHERE id = $1', [req.user.id]);
     const [clients, earnings, pendingWithdrawals, recentOrders] = await Promise.all([
       pool.query('SELECT COUNT(*) FROM users WHERE reseller_id = $1', [req.user.id]),
       pool.query(
@@ -37,6 +38,7 @@ router.get('/dashboard', authenticate, async (req, res) => {
 
     res.json({
       totalClients: parseInt(clients.rows[0].count),
+      resellerCode: userInfo.rows[0]?.reseller_code,
       totalEarningsKobo: parseInt(earnings.rows[0].total),
       availableEarningsKobo: parseInt(earnings.rows[0].available),
       withdrawnEarningsKobo: parseInt(earnings.rows[0].withdrawn),

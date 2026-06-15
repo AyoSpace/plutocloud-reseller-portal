@@ -262,3 +262,40 @@ router.get('/admin/all', authenticate, requireAdmin, async (req, res) => {
 });
 
 module.exports = router;
+
+// Retry payment for pending order
+router.post('/:id/retry-payment', authenticate, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM vm_orders WHERE id = $1 AND user_id = $2 AND status = $3',
+      [req.params.id, req.user.id, 'pending_payment']
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'Order not found or not pending' });
+    const order = rows[0];
+
+    const paystackRes = await axios.post('https://api.paystack.co/transaction/initialize', {
+      email: req.user.email,
+      amount: order.total_kobo,
+      reference: order.paystack_reference,
+      callback_url: `${process.env.FRONTEND_URL}/payment/callback`,
+    }, { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` } });
+
+    res.json({ authorization_url: paystackRes.data.data.authorization_url });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retry payment' });
+  }
+});
+
+// Cancel pending order
+router.delete('/:id', authenticate, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'DELETE FROM vm_orders WHERE id = $1 AND user_id = $2 AND status = $3 RETURNING *',
+      [req.params.id, req.user.id, 'pending_payment']
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'Order not found or cannot be cancelled' });
+    res.json({ message: 'Order cancelled' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to cancel order' });
+  }
+});
