@@ -31,7 +31,7 @@ export default function RegisterPage() {
   };
 
   const f = (field) => ({ value: form[field], onChange: e => setForm({ ...form, [field]: e.target.value }) });
-  const inputClass = "w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
+  const inputClass = "w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500";
   const labelClass = "block text-sm font-medium text-slate-300 mb-2";
 
   return (
@@ -85,13 +85,13 @@ export default function RegisterPage() {
               </div>
             )}
             <button type="submit" disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white font-semibold py-3 rounded-lg transition-colors mt-2">
+              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-800 text-white font-semibold py-3 rounded-lg transition-colors mt-2">
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
           <p className="text-center text-slate-400 text-sm mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium">Sign in</Link>
+            <Link to="/login" className="text-red-400 hover:text-red-300 font-medium">Sign in</Link>
           </p>
         </div>
       </div>

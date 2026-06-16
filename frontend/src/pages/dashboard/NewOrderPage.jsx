@@ -61,7 +61,7 @@ export default function NewOrderPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">Deploy New VM</h1>
         <p className="text-slate-400 mt-1">Configure your virtual machine and complete payment to provision.</p>
-        {isReseller && <div className="mt-2 inline-flex items-center gap-2 bg-green-900/40 border border-green-700 text-green-400 text-sm px-3 py-1.5 rounded-lg">🎉 You get 20% reseller discount on all orders</div>}
+        {isReseller && <div className="mt-2 inline-flex items-center gap-2 bg-green-900/40 border border-green-700 text-green-400 text-sm px-3 py-1.5 rounded-lg">🎉 Reseller pricing: 25% off all components</div>}
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -165,11 +165,11 @@ export default function NewOrderPage() {
             ) : pricing ? (
               <div className="space-y-3">
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between text-slate-400"><span>{config.vcpu} vCPU × ₦24,500</span><span>₦{(config.vcpu * 24500).toLocaleString()}</span></div>
-                  <div className="flex justify-between text-slate-400"><span>{config.ram_gb}GB RAM × ₦2,625</span><span>₦{(config.ram_gb * 2625).toLocaleString()}</span></div>
-                  <div className="flex justify-between text-slate-400"><span>{config.storage_gb}GB HDD × ₦108</span><span>₦{(config.storage_gb * 108).toLocaleString()}</span></div>
+                  <div className="flex justify-between text-slate-400"><span>{config.vcpu} vCPU × {isReseller ? '₦18,375' : '₦24,500'}</span><span>₦{(config.vcpu * (isReseller ? 18375 : 24500)).toLocaleString()}</span></div>
+                  <div className="flex justify-between text-slate-400"><span>{config.ram_gb}GB RAM × {isReseller ? '₦1,969' : '₦2,625'}</span><span>₦{(config.ram_gb * (isReseller ? 1969 : 2625)).toLocaleString()}</span></div>
+                  <div className="flex justify-between text-slate-400"><span>{config.storage_gb}GB HDD × {isReseller ? '₦81' : '₦108'}</span><span>₦{(config.storage_gb * (isReseller ? 81 : 108)).toLocaleString()}</span></div>
                   {config.os.startsWith('windows') && <div className="flex justify-between text-slate-400"><span>Windows OS</span><span>₦30,000</span></div>}
-                  {pricing.discountNgn > 0 && <div className="flex justify-between text-green-400"><span>Reseller Discount (20%)</span><span>-₦{pricing.discountNgn.toLocaleString()}</span></div>}
+                  {isReseller && <div className="flex justify-between text-green-400 text-xs"><span>✓ Reseller pricing applied (25% off)</span></div>}
                   <div className="flex justify-between text-slate-400"><span>VAT (7.5%)</span><span>₦{pricing.vatNgn.toLocaleString()}</span></div>
                   <div className="flex justify-between text-slate-400"><span>Paystack Fee</span><span>₦{pricing.paystackFeeNgn.toLocaleString()}</span></div>
                 </div>

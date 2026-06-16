@@ -309,7 +309,8 @@ router.delete('/:id', authenticate, async (req, res) => {
       [req.params.id, req.user.id, 'pending_payment']
     );
     if (!rows[0]) return res.status(404).json({ error: 'Order not found or cannot be cancelled' });
-    // Delete invoice first (foreign key), then order
+    // Delete related records first (foreign keys), then order
+    await pool.query('DELETE FROM payments WHERE order_id = $1', [req.params.id]);
     await pool.query('DELETE FROM invoices WHERE order_id = $1', [req.params.id]);
     await pool.query('DELETE FROM vm_orders WHERE id = $1', [req.params.id]);
     res.json({ message: 'Order cancelled successfully' });

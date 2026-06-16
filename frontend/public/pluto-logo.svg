@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 280">
+  <style>
+    .cloud { fill: none; stroke: #1a237e; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+    .planet { fill: #1a237e; }
+    .ring { fill: none; stroke: #1a237e; stroke-width: 4; }
+    .ring-white { fill: none; stroke: white; stroke-width: 2.5; }
+    .text-main { font-family: Arial Black, Arial, sans-serif; font-weight: 900; fill: #cc0000; font-size: 52px; letter-spacing: 1px; }
+    .text-sub { font-family: Arial, sans-serif; font-weight: 400; fill: #444; font-size: 14px; letter-spacing: 6px; }
+    .dot { fill: #cc0000; }
+    .dot-line { stroke: #cc0000; stroke-width: 3.5; stroke-linecap: round; }
+  </style>
+  <path class="cloud" d="M 60 148 Q 55 112 78 98 Q 98 84 120 92 Q 127 68 148 58 Q 175 46 198 60 Q 214 46 234 50 Q 260 47 272 68 Q 294 64 304 82 Q 318 82 322 100 Q 334 108 330 126 Q 334 148 318 154 L 75 154 Q 56 154 60 148 Z"/>
+  <circle class="planet" cx="305" cy="104" r="36"/>
+  <ellipse class="ring" cx="305" cy="104" rx="62" ry="17"/>
+  <ellipse class="ring-white" cx="305" cy="102" rx="58" ry="14"/>
+  <path fill="none" stroke="#1a237e" stroke-width="4" d="M 243 93 Q 274 76 305 74 Q 336 76 367 93"/>
+  <circle class="dot" cx="152" cy="126" r="5"/>
+  <line class="dot-line" x1="163" y1="115" x2="180" y2="96"/>
+  <text class="text-main" x="250" y="210" text-anchor="middle">PLUTOCLOUD</text>
+  <text class="text-sub" x="250" y="238" text-anchor="middle">COMPUTING SERVICES</text>
+</svg>
