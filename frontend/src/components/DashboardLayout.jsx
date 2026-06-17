@@ -50,7 +50,7 @@ export default function DashboardLayout() {
     const active = location.pathname === to;
     return (
       <Link to={to} onClick={() => setSidebarOpen(false)}
-        className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-red-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`}>
+        className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`}>
         <Icon className="w-5 h-5" />
         {label}
       </Link>
@@ -58,7 +58,7 @@ export default function DashboardLayout() {
   };
 
   const roleBadge = { super_admin: 'Super Admin', finance_admin: 'Finance Admin', reseller: 'Reseller', client: 'Client' };
-  const roleBadgeColor = { super_admin: 'bg-purple-600', finance_admin: 'bg-yellow-600', reseller: 'bg-green-600', client: 'bg-red-700' };
+  const roleBadgeColor = { super_admin: 'bg-purple-600', finance_admin: 'bg-yellow-600', reseller: 'bg-green-600', client: 'bg-blue-600' };
 
   return (
     <div className="min-h-screen bg-slate-900 flex">
@@ -77,7 +77,7 @@ export default function DashboardLayout() {
           {/* User info */}
           <div className="px-4 py-4 border-b border-slate-700">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-red-700 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+              <div className="w-9 h-9 bg-slate-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                 {user?.first_name?.[0]}{user?.last_name?.[0]}
               </div>
               <div className="flex-1 min-w-0">

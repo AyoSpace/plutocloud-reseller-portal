@@ -103,10 +103,28 @@ export function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('clients');
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ email: '', role: 'finance_admin' });
+  const [inviting, setInviting] = useState(false);
 
   useEffect(() => {
     API.get('/admin/users').then(r => setUsers(r.data)).finally(() => setLoading(false));
   }, []);
+
+  const sendInvite = async (e) => {
+    e.preventDefault();
+    setInviting(true);
+    try {
+      await API.post('/admin/invite', inviteForm);
+      toast.success(`Invite sent to ${inviteForm.email}`);
+      setShowInvite(false);
+      setInviteForm({ email: '', role: 'finance_admin' });
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to send invite');
+    } finally {
+      setInviting(false);
+    }
+  };
 
   const makeReseller = async (id) => {
     try {
@@ -133,14 +151,46 @@ export function AdminUsers() {
   return (
     <div>
       <div className="mb-6"><h1 className="text-2xl font-bold text-white">Users</h1><p className="text-slate-400 mt-1">Manage clients, resellers and company users</p></div>
-      <div className="flex gap-2 mb-4">
-        {tabs.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t.key ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>
-            {t.label}
-          </button>
-        ))}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-2">
+          {tabs.map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t.key ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+        {tab === 'company' && (
+          <button onClick={() => setShowInvite(true)} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">+ Invite Admin</button>
+        )}
       </div>
+
+      {showInvite && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowInvite(false)}>
+          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <h3 className="text-white font-semibold text-lg mb-4">Invite a new admin user</h3>
+            <form onSubmit={sendInvite} className="space-y-4">
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">Email Address</label>
+                <input type="email" required value={inviteForm.email} onChange={e => setInviteForm({...inviteForm, email: e.target.value})}
+                  className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-red-500" placeholder="name@plutocloudcomputing.ng" />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">Role</label>
+                <select value={inviteForm.role} onChange={e => setInviteForm({...inviteForm, role: e.target.value})}
+                  className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-red-500">
+                  <option value="finance_admin">Finance Admin</option>
+                  <option value="super_admin">Super Admin</option>
+                </select>
+              </div>
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setShowInvite(false)} className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2.5 rounded-lg text-sm font-medium">Cancel</button>
+                <button type="submit" disabled={inviting} className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-800 text-white py-2.5 rounded-lg text-sm font-semibold">{inviting ? 'Sending...' : 'Send Invite'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
         {loading ? <div className="p-8 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div></div> : (
           <div className="overflow-x-auto">
