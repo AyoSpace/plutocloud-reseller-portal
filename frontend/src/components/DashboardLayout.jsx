@@ -40,6 +40,7 @@ export default function DashboardLayout() {
     { to: '/admin/orders', icon: Server, label: 'All Orders' },
     { to: '/admin/users', icon: Users, label: 'Users' },
     { to: '/admin/withdrawals', icon: Wallet, label: 'Withdrawals' },
+    { to: '/dashboard/profile', icon: User, label: 'Profile' },
     { to: '/dashboard/security', icon: Shield, label: 'Security' },
   ];
 
