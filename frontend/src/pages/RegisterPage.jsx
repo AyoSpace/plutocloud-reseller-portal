@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Eye, EyeOff, Cloud } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API from '../utils/api';
 
@@ -38,11 +38,12 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4">
-            <Cloud className="w-8 h-8 text-white" />
+          <img src="/pluto-logo.svg" alt="Pluto Cloud Computing" className="h-20 mx-auto mb-2" />
+          <div className="flex items-center justify-center gap-2">
+            <div className="h-0.5 w-8 bg-red-600"></div>
+            <p className="text-slate-300 text-sm tracking-widest uppercase">Create Account</p>
+            <div className="h-0.5 w-8 bg-red-600"></div>
           </div>
-          <h1 className="text-3xl font-bold text-white">Pluto Cloud</h1>
-          <p className="text-slate-400 mt-1">Create your account</p>
         </div>
 
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl">
